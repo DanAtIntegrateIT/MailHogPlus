@@ -2,6 +2,8 @@
   "retentionDays": 10,
   "storageType": "maildir",
   "defaultFolders": [
-    "Gateway2Lease"
-  ]
+    "Gateway2Lease",
+    "Malachi"
+  ],
+  "forceDefaultInboxOnly": false
 }

@@ -61,6 +61,7 @@ companies=(
   "zoom|Zoom"
   "xero|Xero"
   "slack|Slack"
+  "gateway2lease|Gateway"
 )
 
 tmp_files=()
