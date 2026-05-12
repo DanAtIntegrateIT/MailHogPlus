@@ -1,15 +1,22 @@
-Building MailHog
+Building MailHogPlus
 ================
 
-MailHog is built using `make`, and using [this Makefile](../Makefile).
+MailHogPlus is a fork of `mailhog/MailHog`. Keep upstream attribution and MIT license notices intact in derivative work.
 
-If you aren't making any code changes, you can install MailHog using
-`go get github.com/mailhog/MailHog`, since [mailhog/MailHog-UI/assets/assets.go](https://github.com/mailhog/MailHog-UI/blob/master/assets/assets.go)
-is already pre-compiled and committed to this repository.
+MailHogPlus is built using `make`, and using [this Makefile](../Makefile).
+
+Build this fork from source:
+
+```bash
+git clone <your-fork-url>
+cd MailHogPlus
+make deps
+go build -o MailHogPlus .
+```
 
 ### Why do I need a Makefile?
 
-MailHog has HTML, CSS and Javascript assets which need to be converted
+MailHogPlus has HTML, CSS and Javascript assets which need to be converted
 to a go source file using [go-bindata](https://github.com/jteeuwen/go-bindata).
 
 This must happen before running `go build` or `go install` to avoid compilation

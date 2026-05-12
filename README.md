@@ -1,76 +1,55 @@
-MailHog [ ![Download](https://img.shields.io/github/release/mailhog/MailHog.svg) ](https://github.com/mailhog/MailHog/releases/tag/v1.0.0) [![GoDoc](https://godoc.org/github.com/mailhog/MailHog?status.svg)](https://godoc.org/github.com/mailhog/MailHog) [![Build Status](https://travis-ci.org/mailhog/MailHog.svg?branch=master)](https://travis-ci.org/mailhog/MailHog)
+MailHogPlus [ ![Download](https://img.shields.io/github/release/mailhog/MailHog.svg) ](https://github.com/mailhog/MailHog/releases/tag/v1.0.0) [![GoDoc](https://godoc.org/github.com/mailhog/MailHog?status.svg)](https://godoc.org/github.com/mailhog/MailHog) [![Build Status](https://travis-ci.org/mailhog/MailHog.svg?branch=master)](https://travis-ci.org/mailhog/MailHog)
 =========
+
+This repository is a `MailHog` fork branded as `MailHogPlus` for additional IT development team workflows.
+It includes modifications on top of the upstream `mailhog/MailHog` project.
 
 Inspired by [MailCatcher](https://mailcatcher.me/), easier to install.
 
-* Download and run MailHog
+* Download and run MailHogPlus
 * Configure your outgoing SMTP server
 * View your outgoing email in a web UI
 * Release it to a real mail server
 
-Built with Go - MailHog runs without installation on multiple platforms.
+Built with Go - MailHogPlus runs without installation on multiple platforms.
 
 ### Overview
 
-MailHog is an email testing tool for developers:
+MailHogPlus is an email testing tool for developers:
 
-* Configure your application to use MailHog for SMTP delivery
+* Configure your application to use MailHogPlus for SMTP delivery
 * View messages in the web UI, or retrieve them with the JSON API
 * Optionally release messages to real SMTP servers for delivery
 
 ### Installation
 
-#### Manual installation
-[Download the latest release for your platform](/docs/RELEASES.md). Then
-[read the deployment guide](/docs/DEPLOY.md) for deployment options.
-
-#### MacOS
-```bash
-brew update && brew install mailhog
-```
-
-Then, start MailHog by running `mailhog` in the command line.
-
-#### Debian / Ubuntu Go < v1.18
-```bash
-sudo apt-get -y install golang-go
-go get github.com/mailhog/MailHog
-```
-
-#### Go >= v1.17 (Debian Bookworm) 
-```bash
-sudo apt-get -y install golang-go
-go install github.com/mailhog/MailHog@latest
-```
-
-Then, start MailHog by running `/path/to/MailHog` in the command line.
-
-E.g. the path to Go's bin files on Ubuntu is `~/go/bin/`, so to start the MailHog run:
+Install from source in this fork:
 
 ```bash
-~/go/bin/MailHog
+git clone <your-fork-url>
+cd MailHogPlus
+make deps
+go build -o MailHogPlus .
 ```
 
-#### FreeBSD
+Run:
+
 ```bash
-pkg install mailhog
-sysrc mailhog_enable="YES"
-service mailhog start
+./MailHogPlus
 ```
 
-#### Docker
-[Run it from Docker Hub](https://registry.hub.docker.com/r/mailhog/mailhog/) or using the provided [Dockerfile](Dockerfile)
+If you use Docker, build from this repository's [Dockerfile](Dockerfile).
 
 ### Configuration
 
-Check out how to [configure MailHog](/docs/CONFIG.md), or use the default settings:
+Check out how to [configure MailHogPlus](/docs/CONFIG.md), or use the default settings:
   * the SMTP server starts on port 1025
   * the HTTP server starts on port 8025
   * in-memory message storage
 
 ### Features
 
-See [MailHog libraries](docs/LIBRARIES.md) for a list of MailHog client libraries.
+See [MailHogPlus libraries](docs/LIBRARIES.md) for a list of MailHogPlus client libraries.
 
 * ESMTP server implementing RFC5321
 * Support for SMTP AUTH (RFC4954) and PIPELINING (RFC2920)
@@ -82,7 +61,7 @@ See [MailHog libraries](docs/LIBRARIES.md) for a list of MailHog client librarie
   * See [Introduction to Jim](/docs/JIM.md) for more information
 * HTTP API to list, retrieve and delete messages
   * See [APIv1](/docs/APIv1.md) and [APIv2](/docs/APIv2.md) documentation for more information
-* [HTTP basic authentication](docs/Auth.md) for MailHog UI and API
+* [HTTP basic authentication](docs/Auth.md) for MailHogPlus UI and API
 * Multipart MIME support
 * Download individual MIME parts
 * In-memory message storage
@@ -92,11 +71,11 @@ See [MailHog libraries](docs/LIBRARIES.md) for a list of MailHog client librarie
 
 #### sendmail
 
-[mhsendmail](https://github.com/mailhog/mhsendmail) is a sendmail replacement for MailHog.
+[mhsendmail](https://github.com/mailhog/mhsendmail) is a sendmail replacement for MailHogPlus.
 
-It redirects mail to MailHog using SMTP.
+It redirects mail to MailHogPlus using SMTP.
 
-You can also use `MailHog sendmail ...` instead of the separate mhsendmail binary.
+You can also use `MailHogPlus sendmail ...` instead of the separate mhsendmail binary.
 
 Alternatively, you can use your native `sendmail` command by providing `-S`, for example:
 
@@ -113,15 +92,16 @@ sendmail_path = /usr/sbin/sendmail -S mail:1025
 
 #### Web UI
 
-![Screenshot of MailHog web interface](/docs/MailHog.png "MailHog web interface")
+![Screenshot of MailHogPlus web interface](/docs/MailHog.png "MailHogPlus web interface")
 
 ### Contributing
 
-MailHog is a rewritten version of [MailHog](https://github.com/ian-kent/MailHog), which was born out of [M3MTA](https://github.com/ian-kent/M3MTA).
+MailHogPlus is a fork of [mailhog/MailHog](https://github.com/mailhog/MailHog).
+The original project lineage includes [ian-kent/MailHog](https://github.com/ian-kent/MailHog), which was born out of [M3MTA](https://github.com/ian-kent/M3MTA).
 
-Clone this repository to ```$GOPATH/src/github.com/mailhog/MailHog``` and type ```make deps```.
+Clone this repository and run `make deps`.
 
-See the [Building MailHog](/docs/BUILD.md) guide.
+See the [Building MailHogPlus](/docs/BUILD.md) guide.
 
 Requires Go 1.4+ to build.
 
@@ -134,3 +114,5 @@ If you make any changes, run ```go fmt ./...``` before submitting a pull request
 Copyright ©‎ 2014 - 2017, Ian Kent (http://iankent.uk)
 
 Released under MIT license, see [LICENSE](LICENSE.md) for details.
+
+This fork retains upstream copyright and license notices and adds MailHogPlus-specific changes.
