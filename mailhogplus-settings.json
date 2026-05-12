@@ -1,0 +1,7 @@
+{
+  "retentionDays": 10,
+  "storageType": "maildir",
+  "defaultFolders": [
+    "Gateway2Lease"
+  ]
+}
