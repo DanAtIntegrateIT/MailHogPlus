@@ -19,6 +19,12 @@ You can configure MailHogPlus using command line options or environment variable
 | MH_UI_WEB_PATH      | -ui-web-path    |                 | WebPath under which the UI is served (without leading or trailing slashes), e.g. 'MailHogPlus'
 | MH_AUTH_FILE        | -auth-file      |                 | A username:bcryptpw mapping file
 
+### Settings file template
+
+`mailhogplus-settings.example.json` is the tracked template.
+
+`mailhogplus-settings.json` is the local runtime file and is intentionally ignored by git.
+
 #### Note on HTTP bind addresses
 
 If `api-bind-addr` and `ui-bind-addr` are identical, a single listener will

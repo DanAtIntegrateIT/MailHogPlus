@@ -2,3 +2,5 @@ build/
 *.exe
 .idea/
 mailhogplus-data/
+mailhogplus-settings.json
+!mailhogplus-settings.example.json
