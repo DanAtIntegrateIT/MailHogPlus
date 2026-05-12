@@ -18,7 +18,11 @@ Built with Go - MailHogPlus runs without installation on multiple platforms.
 MailHogPlus is an email testing tool for developers:
 
 * Configure your application to use MailHogPlus for SMTP delivery
-* View messages in the web UI, or retrieve them with the JSON API
+* Route SMTP usernames into mailbox folders for team-based inbox workflows
+* Work in a professional multi-pane UI with switchable layouts and resizable panes
+* View messages in the web UI (HTML, plain text, source, attachments, MIME), or retrieve them with the JSON API
+* Score each email with RAG quality status (Red/Amber/Green) before sending
+* Persist messages with retention controls from the settings page
 * Optionally release messages to real SMTP servers for delivery
 
 ### Installation
@@ -69,25 +73,39 @@ Check out how to [configure MailHogPlus](/docs/CONFIG.md), or use the default se
   * the HTTP server starts on port 8025
   * in-memory message storage
 
+The repository includes `mailhogplus-settings.example.json` as a template.
+Your local runtime file `mailhogplus-settings.json` is intentionally ignored by git.
+
 ### Features
 
 See [MailHogPlus libraries](docs/LIBRARIES.md) for a list of MailHogPlus client libraries.
 
 * ESMTP server implementing RFC5321
 * Support for SMTP AUTH (RFC4954) and PIPELINING (RFC2920)
-* Web interface to view messages (plain text, HTML or source)
-  * Supports RFC2047 encoded headers
+* Professional multi-view workspace (folders + list + preview) with switchable layouts
+* Draggable split panes for list/preview sizing
+* Sidebar with scrollable folder area and fixed system menu (connection, settings, about)
+* Folder routing by SMTP username, preserving folder case with case-insensitive matching
+* Configurable default inbox folders and optional "Force default inbox only" enforcement
+* Favorites with quick filtering
+* Read/unread tracking with keyboard shortcuts (Up/Down selection, Space toggle)
+* Attachment paperclip indicators in the list and dedicated Attachments tab with download-all
+* MIME tab for full MIME/part inspection
+* Email quality scoring and RAG tab with actionable hints
+* Full message view in a separate browser window
+* Web interface to view messages (plain text, HTML, source, attachments, MIME)
+* Supports RFC2047 encoded headers
 * Real-time updates using EventSource
 * Release messages to real SMTP servers
 * Chaos Monkey for failure testing
-  * See [Introduction to Jim](/docs/JIM.md) for more information
+* See [Introduction to Jim](/docs/JIM.md) for more information
 * HTTP API to list, retrieve and delete messages
-  * See [APIv1](/docs/APIv1.md) and [APIv2](/docs/APIv2.md) documentation for more information
+* See [APIv1](/docs/APIv1.md) and [APIv2](/docs/APIv2.md) documentation for more information
 * [HTTP basic authentication](docs/Auth.md) for MailHogPlus UI and API
 * Multipart MIME support
 * Download individual MIME parts
-* In-memory message storage
-* MongoDB and file based storage for message persistence
+* Configurable retention and storage mode (memory-only or maildir persistence)
+* MongoDB and file-based storage support
 * Lightweight and portable
 * No installation required
 
@@ -114,7 +132,7 @@ sendmail_path = /usr/sbin/sendmail -S mail:1025
 
 #### Web UI
 
-![Screenshot of MailHogPlus web interface](/docs/MailHog.png "MailHogPlus web interface")
+![Screenshot of MailHogPlus web interface](docs/MailHogPlus-UI-2026.png "MailHogPlus web interface")
 
 ### Contributing
 
