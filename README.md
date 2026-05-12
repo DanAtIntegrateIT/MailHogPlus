@@ -1,159 +1,143 @@
-MailHogPlus [ ![Download](https://img.shields.io/github/release/mailhog/MailHog.svg) ](https://github.com/mailhog/MailHog/releases/tag/v1.0.0) [![GoDoc](https://godoc.org/github.com/mailhog/MailHog?status.svg)](https://godoc.org/github.com/mailhog/MailHog) [![Build Status](https://travis-ci.org/mailhog/MailHog.svg?branch=master)](https://travis-ci.org/mailhog/MailHog)
-=========
+<p align="center">
+  <img src="docs/mailhogplus_logo_large.png" alt="MailHogPlus logo" width="260">
+</p>
 
-This repository is a `MailHog` fork branded as `MailHogPlus` for additional IT development team workflows.
-It includes modifications on top of the upstream `mailhog/MailHog` project.
+# MailHogPlus
 
-Inspired by [MailCatcher](https://mailcatcher.me/), easier to install.
+MailHogPlus is a maintained fork of MailHog focused on professional engineering workflows.  
+It provides a controlled email testing environment for development, QA, and platform teams, with mailbox routing, quality scoring, and release-to-SMTP controls.
 
-* Download and run MailHogPlus
-* Configure your outgoing SMTP server
-* View your outgoing email in a web UI
-* Release it to a real mail server
+## Why MailHogPlus
 
-Built with Go - MailHogPlus runs without installation on multiple platforms.
+MailHogPlus helps teams validate outbound email safely before production delivery:
 
-### Overview
+- Capture all outbound email in a local or shared non-production environment
+- Route mail into team folders using SMTP username conventions
+- Review email quality with built-in RAG scoring and delivery guidance
+- Release approved messages through preconfigured SMTP relays
+- Manage storage and retention from a central settings page
 
-MailHogPlus is an email testing tool for developers:
+## Platform Highlights
 
-* Configure your application to use MailHogPlus for SMTP delivery
-* Route SMTP usernames into mailbox folders for team-based inbox workflows
-* Work in a professional multi-pane UI with switchable layouts and resizable panes
-* View messages in the web UI (HTML, plain text, source, attachments, MIME), or retrieve them with the JSON API
-* Score each email with RAG quality status (Red/Amber/Green) before sending
-* Persist messages with retention controls from the settings page
-* Optionally release messages to real SMTP servers for delivery
+| Capability | Value |
+| --- | --- |
+| Multi-pane operations UI | Faster review with folders, list, and preview workspace modes |
+| SMTP username folder routing | Team-specific inbox segmentation without app changes |
+| Outgoing SMTP release profiles | Controlled release path to real mail servers |
+| Email quality scoring (RAG) | Earlier detection of content and structure risks |
+| Configurable storage and retention | Align test infrastructure with environment requirements |
+| HTTP API + WebSocket updates | Automation and real-time integration support |
 
-### Installation
+## Quick Start
 
-Install from source in this fork:
-
-```bash
-git clone <your-fork-url>
-cd MailHogPlus
-make deps
-go build -o MailHogPlus .
-```
-
-Run:
+### 1) Build
 
 ```bash
-./MailHogPlus
+git clone <your-repository-url>
+cd MailHogPlus-Main
+go build -o mailhogplus .
 ```
 
-If you use Docker, build from this repository's [Dockerfile](Dockerfile).
-
-### Dev vs Production Dependencies
-
-`go.mod` is production-oriented and points at `github.com/DanAtIntegrateIT/*` modules.
-
-For local development from checked out sibling repositories:
-
-* `../MailHogPlus-Server`
-* `../MailHogPlus-UI`
-
-use:
+### 2) Run
 
 ```bash
-make combined-dev
+./mailhogplus
 ```
 
-For production-style dependency resolution and vendoring, use:
+Open the UI at: `http://localhost:8025`  
+Route application SMTP traffic to: `localhost:1025`
 
-```bash
-make combined
-make vendor-prod
-```
+## Configuration
 
-### Configuration
+Default behavior:
 
-Check out how to [configure MailHogPlus](/docs/CONFIG.md), or use the default settings:
-  * the SMTP server starts on port 1025
-  * the HTTP server starts on port 8025
-  * in-memory message storage
+- SMTP listener: `1025`
+- HTTP API/UI listener: `8025`
+- Storage mode: `maildir` (path: `mailhogplus-data`)
 
-The repository includes `mailhogplus-settings.example.json` as a template.
-Your local runtime file `mailhogplus-settings.json` is intentionally ignored by git.
+Use [docs/CONFIG.md](docs/CONFIG.md) for full runtime options and environment variables.
 
-### Features
+Settings persistence:
 
-See [MailHogPlus libraries](docs/LIBRARIES.md) for a list of MailHogPlus client libraries.
+- Template: [mailhogplus-settings.example.json](mailhogplus-settings.example.json)
+- Runtime file: `mailhogplus-settings.json` (git-ignored)
 
-* ESMTP server implementing RFC5321
-* Support for SMTP AUTH (RFC4954) and PIPELINING (RFC2920)
-* Professional multi-view workspace (folders + list + preview) with switchable layouts
-* Draggable split panes for list/preview sizing
-* Sidebar with scrollable folder area and fixed system menu (connection, settings, about)
-* Folder routing by SMTP username, preserving folder case with case-insensitive matching
-* Configurable default inbox folders and optional "Force default inbox only" enforcement
-* Favorites with quick filtering
-* Read/unread tracking with keyboard shortcuts (Up/Down selection, Space toggle)
-* Attachment paperclip indicators in the list and dedicated Attachments tab with download-all
-* MIME tab for full MIME/part inspection
-* Email quality scoring and RAG tab with actionable hints
-* Full message view in a separate browser window
-* Web interface to view messages (plain text, HTML, source, attachments, MIME)
-* Supports RFC2047 encoded headers
-* Real-time updates using EventSource
-* Release messages to real SMTP servers
-* Chaos Monkey for failure testing
-* See [Introduction to Jim](/docs/JIM.md) for more information
-* HTTP API to list, retrieve and delete messages
-* See [APIv1](/docs/APIv1.md) and [APIv2](/docs/APIv2.md) documentation for more information
-* [HTTP basic authentication](docs/Auth.md) for MailHogPlus UI and API
-* Multipart MIME support
-* Download individual MIME parts
-* Configurable retention and storage mode (memory-only or maildir persistence)
-* MongoDB and file-based storage support
-* Lightweight and portable
-* No installation required
+Outgoing relay policy:
 
-#### sendmail
+- Configure outgoing SMTP servers in the **Settings** page
+- The release action is available when at least one outgoing SMTP server is configured
 
-[mhsendmail](https://github.com/mailhog/mhsendmail) is a sendmail replacement for MailHogPlus.
+## Web UI
 
-It redirects mail to MailHogPlus using SMTP.
+![MailHogPlus web interface](docs/MailHogPlus-UI-2026.png)
 
-You can also use `MailHogPlus sendmail ...` instead of the separate mhsendmail binary.
+## API and Integrations
 
-Alternatively, you can use your native `sendmail` command by providing `-S`, for example:
+- API v1 reference: [docs/APIv1.md](docs/APIv1.md)
+- API v2 reference: [docs/APIv2.md](docs/APIv2.md)
+- Authentication: [docs/Auth.md](docs/Auth.md)
+- Chaos testing (Jim): [docs/JIM.md](docs/JIM.md)
+- Client libraries: [docs/LIBRARIES.md](docs/LIBRARIES.md)
+
+## sendmail Integration
+
+[mhsendmail](https://github.com/mailhog/mhsendmail) can route local sendmail workflows through MailHogPlus.
+
+Example:
 
 ```bash
 /usr/sbin/sendmail -S mail:1025
 ```
 
-For example, in PHP you could add either of these lines to `php.ini`:
+PHP example (`php.ini`):
 
-```
+```ini
 sendmail_path = /usr/local/bin/mhsendmail
 sendmail_path = /usr/sbin/sendmail -S mail:1025
 ```
 
-#### Web UI
+## Development Workflow
 
-![Screenshot of MailHogPlus web interface](docs/MailHogPlus-UI-2026.png "MailHogPlus web interface")
+Build and install:
 
-### Contributing
+```bash
+make combined
+```
 
-MailHogPlus is a fork of [mailhog/MailHog](https://github.com/mailhog/MailHog).
-The original project lineage includes [ian-kent/MailHog](https://github.com/ian-kent/MailHog), which was born out of [M3MTA](https://github.com/ian-kent/M3MTA).
+Local development module mode:
 
-Clone this repository and run `make deps`.
+```bash
+make combined-dev
+```
 
-See the [Building MailHogPlus](/docs/BUILD.md) guide.
+Vendor production dependencies:
 
-Requires Go 1.4+ to build.
+```bash
+make vendor-prod
+```
 
-Run tests using ```make test``` or ```goconvey```.
+Testing and formatting:
 
-If you make any changes, run ```go fmt ./...``` before submitting a pull request.
+```bash
+go test ./...
+go fmt ./...
+```
 
-### Licence
+## Project Lineage
 
-Copyright ©‎ 2014 - 2017, Ian Kent (http://iankent.uk)
+MailHogPlus is based on:
 
-Released under MIT license, see [LICENSE](LICENSE.md) for details.
+- [mailhog/MailHog](https://github.com/mailhog/MailHog)
+- [ian-kent/MailHog](https://github.com/ian-kent/MailHog)
+- [ian-kent/M3MTA](https://github.com/ian-kent/M3MTA)
 
-This fork retains upstream copyright and license notices and adds MailHogPlus-specific changes.
-Additional fork copyright: (c) 2026 Integrate IT.
+## Contributing
+
+See [docs/BUILD.md](docs/BUILD.md) for build and packaging instructions.
+
+## License
+
+Released under MIT. See [LICENSE.md](LICENSE.md).
+
+Upstream copyright notices are preserved.
+Additional fork copyright (c) 2026 Integrate IT.
