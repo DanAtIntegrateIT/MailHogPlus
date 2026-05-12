@@ -2,9 +2,9 @@ module mailhogplus
 
 go 1.25.0
 
-replace github.com/mailhog/MailHog-Server => github.com/DanAtIntegrateIT/MailHogPlus-Server v0.0.0-20260512101948-1193d95a07f7
+replace github.com/mailhog/MailHog-Server => ../MailHogPlus-Server
 
-replace github.com/mailhog/MailHog-UI => github.com/DanAtIntegrateIT/MailHogPlus-UI v0.0.0-20260512101951-358198dafd59
+replace github.com/mailhog/MailHog-UI => ../MailHogPlus-UI
 
 require (
 	github.com/gorilla/pat v1.0.2

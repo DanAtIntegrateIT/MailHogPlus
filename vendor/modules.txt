@@ -33,14 +33,14 @@ github.com/ian-kent/linkio
 # github.com/mailhog/MailHog v1.0.1
 ## explicit
 github.com/mailhog/MailHog/config
-# github.com/mailhog/MailHog-Server v1.0.1 => github.com/DanAtIntegrateIT/MailHogPlus-Server v0.0.0-20260512101948-1193d95a07f7
+# github.com/mailhog/MailHog-Server v1.0.1 => ../MailHogPlus-Server
 ## explicit; go 1.24
 github.com/mailhog/MailHog-Server/api
 github.com/mailhog/MailHog-Server/config
 github.com/mailhog/MailHog-Server/monkey
 github.com/mailhog/MailHog-Server/smtp
 github.com/mailhog/MailHog-Server/websockets
-# github.com/mailhog/MailHog-UI v1.0.1 => github.com/DanAtIntegrateIT/MailHogPlus-UI v0.0.0-20260512101951-358198dafd59
+# github.com/mailhog/MailHog-UI v1.0.1 => ../MailHogPlus-UI
 ## explicit; go 1.25.0
 github.com/mailhog/MailHog-UI/assets
 github.com/mailhog/MailHog-UI/config
@@ -89,5 +89,5 @@ gopkg.in/mgo.v2/internal/sasl
 gopkg.in/mgo.v2/internal/scram
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
-# github.com/mailhog/MailHog-Server => github.com/DanAtIntegrateIT/MailHogPlus-Server v0.0.0-20260512101948-1193d95a07f7
-# github.com/mailhog/MailHog-UI => github.com/DanAtIntegrateIT/MailHogPlus-UI v0.0.0-20260512101951-358198dafd59
+# github.com/mailhog/MailHog-Server => ../MailHogPlus-Server
+# github.com/mailhog/MailHog-UI => ../MailHogPlus-UI

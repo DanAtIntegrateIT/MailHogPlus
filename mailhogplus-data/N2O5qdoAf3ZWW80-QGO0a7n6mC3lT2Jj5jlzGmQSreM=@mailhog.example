@@ -1,0 +1,19 @@
+HELO:<tmp.OGAauIzFJj>
+FROM:<qa-bot@example.com>
+TO:<adobe+seed1@example.com>
+
+Return-Path: <qa-bot@example.com>
+X-MailHogPlus-Folder: adobe
+Message-ID: N2O5qdoAf3ZWW80-QGO0a7n6mC3lT2Jj5jlzGmQSreM=@mailhog.example
+Received: from tmp.OGAauIzFJj by mailhog.example (MailHog)
+          id N2O5qdoAf3ZWW80-QGO0a7n6mC3lT2Jj5jlzGmQSreM=@mailhog.example; Tue, 12 May 2026 14:32:53 +0100
+
+Subject: [Adobe] MailHogPlus Seed 20260512-143253 #1
+From: MailHogPlus Seeder <qa-bot@example.com>
+To: adobe+seed1@example.com
+
+Automated MailHogPlus test message.
+Company: Adobe
+SMTP Username: adobe
+Run ID: 20260512-143253
+Message: 1/6

@@ -1,0 +1,19 @@
+HELO:<tmp.fveB91KJ8l>
+FROM:<qa-bot@example.com>
+TO:<microsoft+seed2@example.com>
+
+Return-Path: <qa-bot@example.com>
+X-MailHogPlus-Folder: microsoft
+Message-ID: cR-DMXmdwdu0o_6YzGbTOdlujjnJHmm1wq_x_JtnGGY=@mailhog.example
+Received: from tmp.fveB91KJ8l by mailhog.example (MailHog)
+          id cR-DMXmdwdu0o_6YzGbTOdlujjnJHmm1wq_x_JtnGGY=@mailhog.example; Tue, 12 May 2026 14:32:53 +0100
+
+Subject: [Microsoft] MailHogPlus Seed 20260512-143253 #2
+From: MailHogPlus Seeder <qa-bot@example.com>
+To: microsoft+seed2@example.com
+
+Automated MailHogPlus test message.
+Company: Microsoft
+SMTP Username: microsoft
+Run ID: 20260512-143253
+Message: 2/6
