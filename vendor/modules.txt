@@ -37,6 +37,7 @@ github.com/mailhog/MailHog/config
 ## explicit; go 1.24
 github.com/mailhog/MailHog-Server/api
 github.com/mailhog/MailHog-Server/config
+github.com/mailhog/MailHog-Server/emailquality
 github.com/mailhog/MailHog-Server/monkey
 github.com/mailhog/MailHog-Server/smtp
 github.com/mailhog/MailHog-Server/websockets
