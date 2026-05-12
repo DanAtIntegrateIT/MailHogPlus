@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"mime/quotedprintable"
 	"net/http"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -103,23 +104,28 @@ type foldersResponse struct {
 }
 
 type settingsResponse struct {
-	RetentionDays   int      `json:"retentionDays"`
-	StorageType     string   `json:"storageType"`
-	MaildirPath     string   `json:"maildirPath"`
-	SettingsFile    string   `json:"settingsFile"`
-	DefaultFolders  []string `json:"defaultFolders"`
-	ForceDefaultInboxOnly bool `json:"forceDefaultInboxOnly"`
-	RequiresRestart bool     `json:"requiresRestart"`
+	RetentionDays         int      `json:"retentionDays"`
+	StorageType           string   `json:"storageType"`
+	MaildirPath           string   `json:"maildirPath"`
+	SettingsFile          string   `json:"settingsFile"`
+	DefaultFolders        []string `json:"defaultFolders"`
+	ForceDefaultInboxOnly bool     `json:"forceDefaultInboxOnly"`
+	RequiresRestart       bool     `json:"requiresRestart"`
 }
 
 type updateSettingsRequest struct {
-	RetentionDays  int      `json:"retentionDays"`
-	StorageType    string   `json:"storageType"`
-	DefaultFolders []string `json:"defaultFolders"`
-	ForceDefaultInboxOnly *bool `json:"forceDefaultInboxOnly"`
+	RetentionDays         int      `json:"retentionDays"`
+	StorageType           string   `json:"storageType"`
+	DefaultFolders        []string `json:"defaultFolders"`
+	ForceDefaultInboxOnly *bool    `json:"forceDefaultInboxOnly"`
 }
 
 const folderHeaderName = "X-MailHogPlus-Folder"
+const tagHeaderName = "X-MailHogPlus-Tags"
+const legacyTagHeaderName = "X-MailHogPlus-Tag"
+
+var smtpUsernameTagFallbackRE = regexp.MustCompile(`(?i)smtp\s+username:\s*([^\s<\r\n]+)`)
+var htmlTagStripRE = regexp.MustCompile(`(?is)<[^>]+>`)
 
 func (apiv2 *APIv2) getStartLimit(w http.ResponseWriter, req *http.Request) (start, limit int) {
 	start = 0
@@ -148,6 +154,8 @@ func (apiv2 *APIv2) messages(w http.ResponseWriter, req *http.Request) {
 
 	start, limit := apiv2.getStartLimit(w, req)
 	folder := strings.TrimSpace(req.URL.Query().Get("folder"))
+	tag := strings.TrimSpace(req.URL.Query().Get("tag"))
+	_, hasTagFilter := req.URL.Query()["tag"]
 	order := normalizeMessageOrder(req.URL.Query().Get("order"))
 	apiv2.applyRetention()
 
@@ -159,6 +167,9 @@ func (apiv2 *APIv2) messages(w http.ResponseWriter, req *http.Request) {
 	}
 
 	filtered := filterMessagesByFolder(messages, folder)
+	if hasTagFilter {
+		filtered = filterMessagesByTag(filtered, tag)
+	}
 	sortMessagesByCreated(filtered, order)
 	paged := pageMessages(filtered, start, limit)
 
@@ -198,7 +209,8 @@ func (apiv2 *APIv2) deleteMessages(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 
 	_, hasFolderFilter := req.URL.Query()["folder"]
-	if !hasFolderFilter {
+	_, hasTagFilter := req.URL.Query()["tag"]
+	if !hasFolderFilter && !hasTagFilter {
 		if err := apiv2.config.Storage.DeleteAll(); err != nil {
 			log.Printf("[APIv2] Error deleting all messages: %s", err)
 			w.WriteHeader(500)
@@ -210,12 +222,16 @@ func (apiv2 *APIv2) deleteMessages(w http.ResponseWriter, req *http.Request) {
 	}
 
 	folder := strings.TrimSpace(req.URL.Query().Get("folder"))
+	tag := strings.TrimSpace(req.URL.Query().Get("tag"))
 	messages, err := apiv2.listAllMessages()
 	if err != nil {
 		panic(err)
 	}
 
 	targets := filterMessagesByFolder(messages, folder)
+	if hasTagFilter {
+		targets = filterMessagesByTag(targets, tag)
+	}
 	deleted := 0
 	for _, m := range targets {
 		if err := apiv2.config.Storage.DeleteOne(string(m.ID)); err != nil {
@@ -252,6 +268,8 @@ func (apiv2 *APIv2) search(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	folder := strings.TrimSpace(req.URL.Query().Get("folder"))
+	tag := strings.TrimSpace(req.URL.Query().Get("tag"))
+	_, hasTagFilter := req.URL.Query()["tag"]
 	apiv2.applyRetention()
 
 	var res messagesResult
@@ -274,6 +292,9 @@ func (apiv2 *APIv2) search(w http.ResponseWriter, req *http.Request) {
 	}
 
 	filtered := filterMessagesByFolder([]data.Message(*messages), folder)
+	if hasTagFilter {
+		filtered = filterMessagesByTag(filtered, tag)
+	}
 	sortMessagesByCreated(filtered, order)
 	paged := pageMessages(filtered, start, limit)
 
@@ -406,13 +427,13 @@ func (apiv2 *APIv2) getSettings(w http.ResponseWriter, req *http.Request) {
 	apiv2.defaultOptions(w, req)
 
 	res := settingsResponse{
-		RetentionDays:   apiv2.config.RetentionDays,
-		StorageType:     apiv2.config.StorageType,
-		MaildirPath:     apiv2.config.MaildirPath,
-		SettingsFile:    apiv2.config.SettingsFile,
-		DefaultFolders:  sanitizeFolderNames(apiv2.config.DefaultFolders),
+		RetentionDays:         apiv2.config.RetentionDays,
+		StorageType:           apiv2.config.StorageType,
+		MaildirPath:           apiv2.config.MaildirPath,
+		SettingsFile:          apiv2.config.SettingsFile,
+		DefaultFolders:        sanitizeFolderNames(apiv2.config.DefaultFolders),
 		ForceDefaultInboxOnly: apiv2.config.ForceDefaultInboxOnly,
-		RequiresRestart: false,
+		RequiresRestart:       false,
 	}
 	if apiv2.config.ManagedStorage != nil {
 		res.RetentionDays = apiv2.config.ManagedStorage.RetentionDays()
@@ -479,13 +500,13 @@ func (apiv2 *APIv2) updateSettings(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	res := settingsResponse{
-		RetentionDays:   apiv2.config.RetentionDays,
-		StorageType:     apiv2.config.StorageType,
-		MaildirPath:     apiv2.config.MaildirPath,
-		SettingsFile:    apiv2.config.SettingsFile,
-		DefaultFolders:  sanitizeFolderNames(apiv2.config.DefaultFolders),
+		RetentionDays:         apiv2.config.RetentionDays,
+		StorageType:           apiv2.config.StorageType,
+		MaildirPath:           apiv2.config.MaildirPath,
+		SettingsFile:          apiv2.config.SettingsFile,
+		DefaultFolders:        sanitizeFolderNames(apiv2.config.DefaultFolders),
 		ForceDefaultInboxOnly: apiv2.config.ForceDefaultInboxOnly,
-		RequiresRestart: requiresRestart,
+		RequiresRestart:       requiresRestart,
 	}
 	b, _ := json.Marshal(res)
 	w.Header().Add("Content-Type", "application/json")
@@ -693,6 +714,131 @@ func folderFromMessage(message data.Message) string {
 
 func normalizeFolder(folder string) string {
 	return strings.ToLower(strings.TrimSpace(folder))
+}
+
+func filterMessagesByTag(messages []data.Message, tag string) []data.Message {
+	normalizedTag := normalizeTag(tag)
+	filtered := make([]data.Message, 0, len(messages))
+	for _, m := range messages {
+		messageTags := messageTagsFromMessage(m)
+		if normalizedTag == "" {
+			if len(messageTags) == 0 {
+				filtered = append(filtered, m)
+			}
+			continue
+		}
+		for _, messageTag := range messageTags {
+			if normalizeTag(messageTag) == normalizedTag {
+				filtered = append(filtered, m)
+				break
+			}
+		}
+	}
+	return filtered
+}
+
+func messageTagsFromMessage(message data.Message) []string {
+	if message.Content != nil && message.Content.Headers != nil {
+		rawTags := make([]string, 0)
+		rawTags = append(rawTags, tagsFromHeaderValues(message.Content.Headers, tagHeaderName)...)
+		rawTags = append(rawTags, tagsFromHeaderValues(message.Content.Headers, legacyTagHeaderName)...)
+		tags := sanitizeTagNames(rawTags)
+		if len(tags) > 0 {
+			return tags
+		}
+	}
+
+	// Compatibility fallback for older storage format: folder can be "folder:tag".
+	folderValue := strings.TrimSpace(folderFromMessage(message))
+	if strings.Contains(folderValue, ":") {
+		folderParts := strings.Split(folderValue, ":")
+		tags := sanitizeTagNames(folderParts[1:])
+		if len(tags) > 0 {
+			return tags
+		}
+	}
+
+	return tagsFromMessageBodyFallback(message)
+}
+
+func tagsFromHeaderValues(headers map[string][]string, headerName string) []string {
+	rawTags := make([]string, 0)
+	for key, values := range headers {
+		if !strings.EqualFold(key, headerName) {
+			continue
+		}
+		for _, value := range values {
+			rawTags = append(rawTags, splitTagHeaderValue(value)...)
+		}
+	}
+	return rawTags
+}
+
+func splitTagHeaderValue(value string) []string {
+	return strings.FieldsFunc(value, func(r rune) bool {
+		return r == ':' || r == ','
+	})
+}
+
+func tagsFromMessageBodyFallback(message data.Message) []string {
+	candidates := make([]string, 0, 3)
+	if message.Content != nil && len(strings.TrimSpace(message.Content.Body)) > 0 {
+		candidates = append(candidates, message.Content.Body)
+	}
+	if plain := findMessageContentByMIME(&message, "text/plain"); plain != nil {
+		if decoded := strings.TrimSpace(decodedContentBody(plain)); len(decoded) > 0 {
+			candidates = append(candidates, decoded)
+		}
+	}
+	if html := findMessageContentByMIME(&message, "text/html"); html != nil {
+		if decoded := strings.TrimSpace(decodedContentBody(html)); len(decoded) > 0 {
+			candidates = append(candidates, decoded)
+		}
+	}
+
+	for _, candidate := range candidates {
+		cleaned := strings.TrimSpace(htmlTagStripRE.ReplaceAllString(candidate, " "))
+		if len(cleaned) == 0 {
+			continue
+		}
+		match := smtpUsernameTagFallbackRE.FindStringSubmatch(cleaned)
+		if len(match) < 2 {
+			continue
+		}
+		username := strings.TrimSpace(match[1])
+		parts := strings.Split(username, ":")
+		if len(parts) < 2 {
+			continue
+		}
+		tags := sanitizeTagNames(parts[1:])
+		if len(tags) > 0 {
+			return tags
+		}
+	}
+
+	return []string{}
+}
+
+func normalizeTag(tag string) string {
+	return strings.ToLower(strings.TrimSpace(tag))
+}
+
+func sanitizeTagNames(tags []string) []string {
+	cleaned := make([]string, 0, len(tags))
+	seen := map[string]bool{}
+	for _, tag := range tags {
+		name := strings.TrimSpace(tag)
+		normalized := normalizeTag(name)
+		if len(normalized) == 0 || seen[normalized] {
+			continue
+		}
+		seen[normalized] = true
+		cleaned = append(cleaned, name)
+	}
+	if len(cleaned) == 0 {
+		return []string{}
+	}
+	return cleaned
 }
 
 func sanitizeFolderNames(folders []string) []string {

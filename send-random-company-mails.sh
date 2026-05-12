@@ -64,6 +64,69 @@ companies=(
   "gateway2lease|Gateway"
 )
 
+available_tags=(
+  "jon"
+  "legacy"
+  "qa"
+  "ops"
+  "finance"
+  "support"
+  "beta"
+)
+
+build_username_with_tags() {
+  local base_username="$1"
+  local selected_count=$((RANDOM % 4))
+  local selected_tags=()
+  local username="$base_username"
+
+  while [[ ${#selected_tags[@]} -lt $selected_count ]]; do
+    local candidate="${available_tags[$((RANDOM % ${#available_tags[@]}))]}"
+    local already_selected="no"
+    for chosen in "${selected_tags[@]}"; do
+      if [[ "$chosen" == "$candidate" ]]; then
+        already_selected="yes"
+        break
+      fi
+    done
+    if [[ "$already_selected" == "yes" ]]; then
+      continue
+    fi
+    selected_tags+=("$candidate")
+    username="${username}:${candidate}"
+  done
+
+  printf '%s' "$username"
+}
+
+build_random_header_tags() {
+  local selected_count=$((RANDOM % 4))
+  local selected_tags=()
+
+  while [[ ${#selected_tags[@]} -lt $selected_count ]]; do
+    local candidate="${available_tags[$((RANDOM % ${#available_tags[@]}))]}"
+    local already_selected="no"
+    for chosen in "${selected_tags[@]}"; do
+      if [[ "$chosen" == "$candidate" ]]; then
+        already_selected="yes"
+        break
+      fi
+    done
+    if [[ "$already_selected" == "yes" ]]; then
+      continue
+    fi
+    selected_tags+=("$candidate")
+  done
+
+  if [[ ${#selected_tags[@]} -eq 0 ]]; then
+    printf ''
+    return
+  fi
+
+  local IFS=':'
+  printf '%s' "${selected_tags[*]}"
+}
+
 tmp_files=()
 cleanup() {
   for f in "${tmp_files[@]}"; do
@@ -92,11 +155,15 @@ build_plain_email() {
   local index="$6"
   local total="$7"
   local from_addr="$8"
+  local header_tags="$9"
 
   : >"$file"
   append_line "$file" "Subject: [${company}] MailHogPlus Seed ${run_id} #${index} (plain)"
   append_line "$file" "From: MailHogPlus Seeder <${from_addr}>"
   append_line "$file" "To: ${recipient}"
+  if [[ -n "$header_tags" ]]; then
+    append_line "$file" "X-MailHogPlus-Tags: ${header_tags}"
+  fi
   append_line "$file" "MIME-Version: 1.0"
   append_line "$file" "Content-Type: text/plain; charset=utf-8"
   append_blank "$file"
@@ -117,12 +184,16 @@ build_html_email() {
   local index="$6"
   local total="$7"
   local from_addr="$8"
+  local header_tags="$9"
   local boundary_alt="ALT-${run_id//[^a-zA-Z0-9]/}-${index}"
 
   : >"$file"
   append_line "$file" "Subject: [${company}] MailHogPlus Seed ${run_id} #${index} (html)"
   append_line "$file" "From: MailHogPlus Seeder <${from_addr}>"
   append_line "$file" "To: ${recipient}"
+  if [[ -n "$header_tags" ]]; then
+    append_line "$file" "X-MailHogPlus-Tags: ${header_tags}"
+  fi
   append_line "$file" "MIME-Version: 1.0"
   append_line "$file" "Content-Type: multipart/alternative; boundary=\"${boundary_alt}\""
   append_blank "$file"
@@ -162,6 +233,7 @@ build_attachment_email() {
   local total="$7"
   local from_addr="$8"
   local include_html="$9"
+  local header_tags="${10}"
   local boundary_mixed="MIXED-${run_id//[^a-zA-Z0-9]/}-${index}"
   local attachment_name="seed-${username}-${index}.csv"
   local attachment_csv attachment_payload
@@ -174,6 +246,9 @@ ${company},${username},${run_id},${index},${total}"
   append_line "$file" "Subject: [${company}] MailHogPlus Seed ${run_id} #${index} (attachment)"
   append_line "$file" "From: MailHogPlus Seeder <${from_addr}>"
   append_line "$file" "To: ${recipient}"
+  if [[ -n "$header_tags" ]]; then
+    append_line "$file" "X-MailHogPlus-Tags: ${header_tags}"
+  fi
   append_line "$file" "MIME-Version: 1.0"
   append_line "$file" "Content-Type: multipart/mixed; boundary=\"${boundary_mixed}\""
   append_blank "$file"
@@ -226,9 +301,12 @@ echo "Sending ${count} test email(s) to smtp://${SMTP_HOST}:${SMTP_PORT}"
 
 for ((i = 1; i <= count; i++)); do
   entry="${companies[$((RANDOM % ${#companies[@]}))]}"
-  username="${entry%%|*}"
+  base_username="${entry%%|*}"
+  username="$(build_username_with_tags "$base_username")"
+  auth_username="${username//:/%3A}"
+  header_tags="$(build_random_header_tags)"
   company="${entry#*|}"
-  recipient="${username}+seed${i}@${FROM_DOMAIN}"
+  recipient="${base_username}+seed${i}@${FROM_DOMAIN}"
 
   msg_file="$(mktemp)"
   tmp_files+=("$msg_file")
@@ -236,22 +314,22 @@ for ((i = 1; i <= count; i++)); do
 
   case "$message_type" in
     plain)
-      build_plain_email "$msg_file" "$company" "$username" "$recipient" "$run_id" "$i" "$count" "$from_addr"
+      build_plain_email "$msg_file" "$company" "$username" "$recipient" "$run_id" "$i" "$count" "$from_addr" "$header_tags"
       ;;
     html)
-      build_html_email "$msg_file" "$company" "$username" "$recipient" "$run_id" "$i" "$count" "$from_addr"
+      build_html_email "$msg_file" "$company" "$username" "$recipient" "$run_id" "$i" "$count" "$from_addr" "$header_tags"
       ;;
     attachment)
-      build_attachment_email "$msg_file" "$company" "$username" "$recipient" "$run_id" "$i" "$count" "$from_addr" "no"
+      build_attachment_email "$msg_file" "$company" "$username" "$recipient" "$run_id" "$i" "$count" "$from_addr" "no" "$header_tags"
       ;;
     html_attachment)
-      build_attachment_email "$msg_file" "$company" "$username" "$recipient" "$run_id" "$i" "$count" "$from_addr" "yes"
+      build_attachment_email "$msg_file" "$company" "$username" "$recipient" "$run_id" "$i" "$count" "$from_addr" "yes" "$header_tags"
       ;;
   esac
 
   curl --silent --show-error --fail \
     --url "smtp://${SMTP_HOST}:${SMTP_PORT}" \
-    --user "${username}:${SMTP_PASS}" \
+    --user "${auth_username}:${SMTP_PASS}" \
     --mail-from "${from_addr}" \
     --mail-rcpt "${recipient}" \
     --upload-file "${msg_file}" >/dev/null
