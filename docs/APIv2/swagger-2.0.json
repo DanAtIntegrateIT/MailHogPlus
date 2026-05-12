@@ -7,7 +7,7 @@
     "paths": {
         "/api/v2/messages": {
             "get": {
-                "description": "Retrieve a list of messages\n",
+                "description": "Retrieve a list of messages.\nSupports filtering by folder and tag metadata derived from SMTP username.\n",
                 "parameters": [
                     {
                         "name": "start",
@@ -26,6 +26,32 @@
                         "type": "number",
                         "format": "int64",
                         "default": 50
+                    },
+                    {
+                        "name": "folder",
+                        "in": "query",
+                        "description": "Folder filter (case-insensitive). Empty/missing means inbox messages only.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tag",
+                        "in": "query",
+                        "description": "Tag filter (case-insensitive). `tag=` (empty) returns messages with no tags.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Message order by Created timestamp.",
+                        "required": false,
+                        "type": "string",
+                        "enum": [
+                            "desc",
+                            "asc"
+                        ],
+                        "default": "desc"
                     }
                 ],
                 "responses": {
@@ -105,7 +131,8 @@
                                                 }
                                             },
                                             "headers": {
-                                                "type": "object"
+                                                "type": "object",
+                                                "description": "Includes metadata headers such as X-MailHogPlus-Folder and X-MailHogPlus-Tags."
                                             },
                                             "size": {
                                                 "type": "number",
@@ -126,7 +153,7 @@
         },
         "/api/v2/search": {
             "get": {
-                "description": "Search messages\n",
+                "description": "Search messages.\nSupports additional folder and tag metadata filters.\n",
                 "parameters": [
                     {
                         "name": "kind",
@@ -164,6 +191,32 @@
                         "type": "number",
                         "format": "int64",
                         "default": 50
+                    },
+                    {
+                        "name": "folder",
+                        "in": "query",
+                        "description": "Folder filter (case-insensitive). Empty/missing means inbox messages only.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tag",
+                        "in": "query",
+                        "description": "Tag filter (case-insensitive). `tag=` (empty) returns messages with no tags.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Message order by Created timestamp.",
+                        "required": false,
+                        "type": "string",
+                        "enum": [
+                            "desc",
+                            "asc"
+                        ],
+                        "default": "desc"
                     }
                 ],
                 "responses": {
@@ -243,7 +296,8 @@
                                                 }
                                             },
                                             "headers": {
-                                                "type": "object"
+                                                "type": "object",
+                                                "description": "Includes metadata headers such as X-MailHogPlus-Folder and X-MailHogPlus-Tags."
                                             },
                                             "size": {
                                                 "type": "number",

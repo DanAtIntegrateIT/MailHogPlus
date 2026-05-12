@@ -67,6 +67,24 @@ Outgoing relay policy:
 - Configure outgoing SMTP servers in the **Settings** page
 - The release action is available when at least one outgoing SMTP server is configured
 
+### Folder and Tag Routing
+
+MailHogPlus routes incoming email based on SMTP username:
+
+- `folder` routes to a folder with that name
+- `folder:tag1:tag2` routes to the folder and stores tags
+
+Message metadata headers:
+
+- `X-MailHogPlus-Folder`
+- `X-MailHogPlus-Tags` (preferred)
+- `X-MailHogPlus-Tag` (legacy, still supported)
+
+UI behavior:
+
+- The tag filter applies to both inbox/folder views and search results
+- If a tag filter has no matches, the message list shows `No results found for this filter.`
+
 ## Web UI
 
 ![MailHogPlus web interface](docs/MailHogPlus-UI-2026.png)

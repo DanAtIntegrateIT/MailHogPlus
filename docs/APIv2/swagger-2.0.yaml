@@ -8,7 +8,8 @@ paths:
   /api/v2/messages:
     get:
       description: |
-        Retrieve a list of messages
+        Retrieve a list of messages.
+        Supports filtering by folder and tag metadata derived from SMTP username.
       parameters:
         -
           name: start
@@ -26,6 +27,26 @@ paths:
           type: number
           format: int64
           default: 50
+        -
+          name: folder
+          in: query
+          description: Folder filter (case-insensitive). Empty/missing means inbox messages only.
+          required: false
+          type: string
+        -
+          name: tag
+          in: query
+          description: Tag filter (case-insensitive). `tag=` (empty) returns messages with no tags.
+          required: false
+          type: string
+        -
+          name: order
+          in: query
+          description: Message order by Created timestamp.
+          required: false
+          type: string
+          enum: [ desc, asc ]
+          default: desc
       responses:
         200:
           description: Successful response
@@ -85,6 +106,7 @@ paths:
                             type: string
                     headers:
                       type: object
+                      description: Includes metadata headers such as X-MailHogPlus-Folder and X-MailHogPlus-Tags.
                     size:
                       type: number
                       format: int64
@@ -94,7 +116,8 @@ paths:
   /api/v2/search:
     get:
       description: |
-        Search messages
+        Search messages.
+        Supports additional folder and tag metadata filters.
       parameters:
         -
           name: kind
@@ -125,6 +148,26 @@ paths:
           type: number
           format: int64
           default: 50
+        -
+          name: folder
+          in: query
+          description: Folder filter (case-insensitive). Empty/missing means inbox messages only.
+          required: false
+          type: string
+        -
+          name: tag
+          in: query
+          description: Tag filter (case-insensitive). `tag=` (empty) returns messages with no tags.
+          required: false
+          type: string
+        -
+          name: order
+          in: query
+          description: Message order by Created timestamp.
+          required: false
+          type: string
+          enum: [ desc, asc ]
+          default: desc
       responses:
         200:
           description: Successful response
@@ -184,6 +227,7 @@ paths:
                             type: string
                     headers:
                       type: object
+                      description: Includes metadata headers such as X-MailHogPlus-Folder and X-MailHogPlus-Tags.
                     size:
                       type: number
                       format: int64

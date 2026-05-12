@@ -59,6 +59,29 @@ Only `name`, `host` and `port` are required.
 
 `mechanism` can be `PLAIN` or `CRAM-MD5`.
 
+### SMTP username routing rules (folder and tags)
+
+MailHogPlus derives folder and tags from SMTP AUTH username:
+
+- `folder` -> folder only
+- `folder:tag1:tag2` -> folder plus tags
+
+Folder and tag matching is case-insensitive in API/UI filters.
+
+Message metadata is stored in headers:
+
+- `X-MailHogPlus-Folder`
+- `X-MailHogPlus-Tags` (preferred)
+- `X-MailHogPlus-Tag` (legacy compatibility)
+
+The API supports `folder` and `tag` query filters on:
+
+- `GET /api/v2/messages`
+- `GET /api/v2/search`
+- `DELETE /api/v2/messages`
+
+`tag=` with an empty value filters to messages with no derived tags.
+
 ### Firewalls and proxies
 
 If you have MailHogPlus behind a firewall, you'll need ports `8025` and `1025` by default.
