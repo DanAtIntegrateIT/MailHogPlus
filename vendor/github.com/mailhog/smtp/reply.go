@@ -1,6 +1,9 @@
 package smtp
 
-import "strconv"
+import (
+	"strconv"
+	"strings"
+)
 
 // http://www.rfc-editor.org/rfc/rfc5321.txt
 
@@ -102,6 +105,15 @@ func ReplyMustIssueSTARTTLSFirst() *Reply {
 // ReplyInvalidAuth creates a 535 error reply
 func ReplyInvalidAuth() *Reply {
 	return &Reply{535, []string{"Authentication credentials invalid"}, nil}
+}
+
+// ReplyInvalidAuthWithReason creates a 535 error reply with a custom reason.
+func ReplyInvalidAuthWithReason(reason string) *Reply {
+	reason = strings.TrimSpace(reason)
+	if len(reason) == 0 {
+		return ReplyInvalidAuth()
+	}
+	return &Reply{535, []string{reason}, nil}
 }
 
 // ReplyError creates a 500 error reply

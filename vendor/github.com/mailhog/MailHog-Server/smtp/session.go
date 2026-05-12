@@ -97,7 +97,7 @@ func (c *Session) validateAuthentication(mechanism string, args ...string) (erro
 	}
 	username := extractAuthenticatedUsername(mechanism, args...)
 	if c.config != nil && !c.config.IsFolderAllowed(username) {
-		return smtp.ReplyInvalidAuth(), false
+		return smtp.ReplyInvalidAuthWithReason("unknown user folder"), false
 	}
 	if len(username) > 0 {
 		c.authenticatedUsername = username
