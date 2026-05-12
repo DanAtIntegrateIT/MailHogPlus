@@ -133,9 +133,9 @@ func (m *SMTPMessage) Parse(hostname string) *Message {
 	}
 
 	if len(receivedHeaderName) > 0 {
-		msg.Content.Headers[receivedHeaderName] = append(msg.Content.Headers[receivedHeaderName], "from "+m.Helo+" by "+hostname+" (MailHogPlus)\r\n          id "+string(id)+"; "+time.Now().Format(time.RFC1123Z))
+		msg.Content.Headers[receivedHeaderName] = append(msg.Content.Headers[receivedHeaderName], "from "+m.Helo+" by "+hostname+" (MailHog)\r\n          id "+string(id)+"; "+time.Now().Format(time.RFC1123Z))
 	} else {
-		msg.Content.Headers["Received"] = []string{"from " + m.Helo + " by " + hostname + " (MailHogPlus)\r\n          id " + string(id) + "; " + time.Now().Format(time.RFC1123Z)}
+		msg.Content.Headers["Received"] = []string{"from " + m.Helo + " by " + hostname + " (MailHog)\r\n          id " + string(id) + "; " + time.Now().Format(time.RFC1123Z)}
 	}
 
 	if len(returnPathHeaderName) > 0 {
