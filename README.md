@@ -156,3 +156,4 @@ Copyright ©‎ 2014 - 2017, Ian Kent (http://iankent.uk)
 Released under MIT license, see [LICENSE](LICENSE.md) for details.
 
 This fork retains upstream copyright and license notices and adds MailHogPlus-specific changes.
+Additional fork copyright: (c) 2026 Integrate IT.
