@@ -5,6 +5,12 @@ all: fmt combined
 combined:
 	go install .
 
+combined-dev:
+	go install -modfile go.dev.mod -mod=mod .
+
+vendor-prod:
+	go mod vendor
+
 release: tag release-deps 
 	gox -ldflags "-X main.version=${VERSION}" -output="build/{{.Dir}}_{{.OS}}_{{.Arch}}" .
 
@@ -32,4 +38,4 @@ tag:
 	cd ../smtp; git tag -a -m 'v${VERSION}' v${VERSION} && git push origin v${VERSION}
 	cd ../storage; git tag -a -m 'v${VERSION}' v${VERSION} && git push origin v${VERSION}
 
-.PHONY: all combined release fmt release-deps pull tag
+.PHONY: all combined combined-dev vendor-prod release fmt release-deps pull tag

@@ -40,6 +40,28 @@ Run:
 
 If you use Docker, build from this repository's [Dockerfile](Dockerfile).
 
+### Dev vs Production Dependencies
+
+`go.mod` is production-oriented and points at `github.com/DanAtIntegrateIT/*` modules.
+
+For local development from checked out sibling repositories:
+
+* `../MailHogPlus-Server`
+* `../MailHogPlus-UI`
+
+use:
+
+```bash
+make combined-dev
+```
+
+For production-style dependency resolution and vendoring, use:
+
+```bash
+make combined
+make vendor-prod
+```
+
 ### Configuration
 
 Check out how to [configure MailHogPlus](/docs/CONFIG.md), or use the default settings:
