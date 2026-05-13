@@ -20,6 +20,7 @@ import (
 	cfgui "github.com/mailhog/MailHog-UI/config"
 	"github.com/mailhog/MailHog-UI/web"
 	cfgcom "github.com/mailhog/MailHog/config"
+	"github.com/mailhog/data"
 	"github.com/mailhog/http"
 	"github.com/mailhog/mhsendmail/cmd"
 	"golang.org/x/crypto/bcrypt"
@@ -45,6 +46,7 @@ func configureLogging() {
 	}
 
 	stdlog.SetOutput(io.MultiWriter(os.Stdout, file))
+	data.LogHandler = func(message string, args ...interface{}) {}
 	log.Printf("Writing logs to %s", logFilePath)
 }
 

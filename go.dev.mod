@@ -13,6 +13,7 @@ require (
 	github.com/mailhog/MailHog v1.0.1
 	github.com/mailhog/MailHog-Server v1.0.1
 	github.com/mailhog/MailHog-UI v1.0.1
+	github.com/mailhog/data v1.0.1
 	github.com/mailhog/http v1.0.1
 	github.com/mailhog/mhsendmail v0.2.0
 	golang.org/x/crypto v0.51.0
@@ -26,7 +27,6 @@ require (
 	github.com/ian-kent/goose v0.0.0-20141221090059-c3541ea826ad // indirect
 	github.com/ian-kent/linkio v0.0.0-20170807205755-97566b872887 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/mailhog/data v1.0.1 // indirect
 	github.com/mailhog/smtp v1.0.1 // indirect
 	github.com/mailhog/storage v1.0.1 // indirect
 	github.com/ogier/pflag v0.0.1 // indirect
