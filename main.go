@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
+	stdlog "log"
 	"os"
 
 	gohttp "net/http"
@@ -26,6 +28,22 @@ var uiconf *cfgui.Config
 var comconf *cfgcom.Config
 var exitCh chan int
 var version string
+
+func configureLogging() {
+	logFilePath := os.Getenv("MH_LOG_FILE")
+	if logFilePath == "" {
+		return
+	}
+
+	file, err := os.OpenFile(logFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Printf("Unable to open MH_LOG_FILE %q: %s", logFilePath, err)
+		return
+	}
+
+	stdlog.SetOutput(io.MultiWriter(os.Stdout, file))
+	log.Printf("Writing logs to %s", logFilePath)
+}
 
 func configure() {
 	cfgcom.RegisterFlags()
@@ -73,6 +91,7 @@ func main() {
 	}
 
 	configure()
+	configureLogging()
 
 	if comconf.AuthFile != "" {
 		http.AuthFile(comconf.AuthFile)
